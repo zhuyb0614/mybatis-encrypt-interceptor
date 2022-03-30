@@ -13,6 +13,8 @@ import lombok.ToString;
 public class EncryptUser implements EncryptClass {
     private Integer id;
     private String name;
+    private Integer age;
+    private String email;
     @EncryptField(sourceFiledName = "name")
     private String encryptName;
 }
