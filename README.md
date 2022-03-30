@@ -30,11 +30,11 @@ mei:
 如
 ```java
     @Select({"<script>",
-            "select * from user_auth where         " +
-             "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
-            "<if test='ua.encryptIdentityNo!=null'>encrypt_identity_no = #{ua.encryptIdentityNo}</if>",
+            "select * from user where         ",
+            "<if test='es.plainText!=null'>name = #{es.plainText}</if>",
+            "<if test='es.cipherText!=null'>encrypt_name = #{es.cipherText}</if>",
             "</script>"})
-    UserAuth findByIdentityNo(@Param("ua") UserAuth userAuth);
+    EncryptUser findByName(@Param("es") EncryptString encryptString);
 ```
 ### 首次上线
 仍需要查询仍使用明文字段.并同步写入密文字段.通过跑job将历史明文数据都写入密文数据.
@@ -64,9 +64,12 @@ mei:
 默认提供EncryptClassEncryptor,用户将需要加解密的POJO,实现EncryptClass,并在密文字段通过@EncryptField注解关联明文字段.<br/>
 如
 ```java
+@Data
 public class EncryptUser implements EncryptClass {
     private Integer id;
     private String name;
+    private Integer age;
+    private String email;
     @EncryptField(sourceFiledName = "name")
     private String encryptName;
 }
