@@ -19,8 +19,8 @@ public interface UserAuthDao {
     UserAuth findById(Integer id);
 
     @Select({"<script>",
-            "select * from user_auth where         " +
-                    "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
+            "select * from user_auth where         ",
+            "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
             "<if test='ua.encryptIdentityNo!=null'>encrypt_identity_no = #{ua.encryptIdentityNo}</if>",
             "</script>"})
     UserAuth findByIdentityNo(@Param("ua") UserAuth userAuth);

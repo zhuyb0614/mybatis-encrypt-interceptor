@@ -3,6 +3,7 @@ package com.github.zhuyb0614.mei;
 import com.github.zhuyb0614.mei.entity.EncryptUser;
 import com.github.zhuyb0614.mei.entity.User;
 import com.github.zhuyb0614.mei.mapper.UserDao;
+import com.github.zhuyb0614.mei.pojo.EncryptString;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,6 +24,8 @@ public class UserDaoTest {
 
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private MeiProperties meiProperties;
 
     @Test
     public void findById() {
@@ -41,6 +44,7 @@ public class UserDaoTest {
         Assert.assertTrue("yunbo".equals(encryptUser.getName()));
     }
 
+
     @Test
     public void insert() {
         EncryptUser encryptUser = new EncryptUser();
@@ -55,5 +59,15 @@ public class UserDaoTest {
         User user = userDao.findById(id);
         log.info("user 3 {}", user);
         Assert.assertTrue("zhangsan".equals(persistUser.getName()));
+    }
+
+
+
+    @Test
+    public void findByName() {
+        log.info("mei properties {}", meiProperties);
+        EncryptUser encryptUser = userDao.findByName(new EncryptString("yunbo"));
+        log.info("encrypt user  {}", encryptUser);
+        Assert.assertTrue(encryptUser != null && "yunbo".equals(encryptUser.getName()));
     }
 }

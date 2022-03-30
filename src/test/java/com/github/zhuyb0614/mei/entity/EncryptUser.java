@@ -9,7 +9,6 @@ import lombok.ToString;
  * 主要是为了单测用,可以直接修改User
  */
 @Data
-@ToString(callSuper = true)
 public class EncryptUser implements EncryptClass {
     private Integer id;
     private String name;

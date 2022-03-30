@@ -3,6 +3,7 @@ package com.github.zhuyb0614.mei.interceptor;
 import com.github.zhuyb0614.mei.MeiProperties;
 import com.github.zhuyb0614.mei.encryptor.Encryptor;
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
 })
+@Slf4j
 public class EncryptParameterInterceptor extends BaseInterceptor {
 
     public static final String QUERY = "query";
@@ -88,13 +90,17 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
             for (Map.Entry<Class, List<Object>> classListEntry : classListMap.entrySet()) {
                 Optional<Encryptor> encryptorOptional = chooseEncryptor(classListEntry.getKey());
                 if (encryptorOptional.isPresent()) {
+                    log.debug("param encrypt before {}", classListEntry.getValue());
                     encryptorOptional.get().encryptBatch(classListEntry.getValue(), isRemoveSource);
+                    log.debug("param encrypt after {}", classListEntry.getValue());
                 }
             }
         } else {
             Optional<Encryptor> encryptorOptional = chooseEncryptor(parameter.getClass());
             if (encryptorOptional.isPresent()) {
+                log.debug("param encrypt before {}", parameter);
                 encryptorOptional.get().encrypt(parameter, isRemoveSource);
+                log.debug("param encrypt after {}", parameter);
             }
         }
     }

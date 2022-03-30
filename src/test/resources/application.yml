@@ -20,4 +20,4 @@ mei:
   query-source-field-switch: false
 logging:
   level:
-    com.github.zhuyb0614.mei.mapper: debug
+    com.github.zhuyb0614.mei: debug
