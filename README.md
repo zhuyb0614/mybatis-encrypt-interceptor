@@ -19,6 +19,18 @@ mei:
 
 ## 已上线业务改造
 数据库存在明文历史数据,需要分两次上线.
+### 判断通过明文或密文字段查询
+配置mei.query-source-field-switch=true时,不会对查询参数进行加密.
+配置mei.query-source-field-switch=true时,会删除明文字段.
+所以我们可以将sql就行为空判断,决定通过那个字段查询.如
+```java
+    @Select({"<script>",
+            "select * from user_auth where         " +
+                    "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
+            "<if test='ua.encryptIdentityNo!=null'>encrypt_identity_no = #{ua.encryptIdentityNo}</if>",
+            "</script>"})
+    UserAuth findByIdentityNo(@Param("ua") UserAuth userAuth);
+```
 ### 首次上线
 仍需要查询仍使用明文字段.并同步写入密文字段.通过跑job将历史明文数据都写入密文数据.
 #### 配置
