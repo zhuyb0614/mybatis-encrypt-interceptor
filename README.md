@@ -6,8 +6,8 @@
 ### 密文字段
 数据库中经过加密存储的字段.
 ## 处理流程详解
-通过EncryptParameterInterceptor对用户参数进行拦截,对明文字段加密.
-通过EncryptResultInterceptor对查询结果进行拦截,将密文字段解密.
+通过EncryptParameterInterceptor对用户参数进行拦截,对明文字段加密.<br/>
+通过EncryptResultInterceptor对查询结果进行拦截,将密文字段解密.<br/>
 ## 新上线业务
 不需要清洗历史数据,可直接读写使用密文字段.
 #### 配置
@@ -20,13 +20,14 @@ mei:
 ## 已上线业务改造
 数据库存在明文历史数据,需要分两次上线.
 ### 判断通过明文或密文字段查询
-配置mei.query-source-field-switch=true时,不会对查询参数进行加密.
-配置mei.query-source-field-switch=false时,会删除明文字段.
-所以我们可以将sql就行为空判断,决定通过那个字段查询.如
+配置mei.query-source-field-switch=true时,不会对查询参数进行加密.<br/>
+配置mei.query-source-field-switch=false时,会删除明文字段.<br/>
+所以我们可以将sql就行为空判断,决定通过那个字段查询.<br/>
+如
 ```java
     @Select({"<script>",
             "select * from user_auth where         " +
-                    "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
+             "<if test='ua.identityNo!=null'>identity_no = #{ua.identityNo}</if>",
             "<if test='ua.encryptIdentityNo!=null'>encrypt_identity_no = #{ua.encryptIdentityNo}</if>",
             "</script>"})
     UserAuth findByIdentityNo(@Param("ua") UserAuth userAuth);
@@ -53,9 +54,10 @@ mei:
 ## 自定义扩展
 
 ### StringEncryptor接口
-纯粹的字符串加解密提供接口,默认使用ReverseStringEncryptor将字符串翻转.用户自定义实现StringEncryptor接口并注册Bean到spring容器后.将自动使用用户自定义加解密规则.
+纯粹的字符串加解密提供接口,默认使用ReverseStringEncryptor将字符串翻转.<br/>
+用户自定义实现StringEncryptor接口并注册Bean到spring容器后.将自动使用用户自定义加解密规则.<br/>
 ### Encryptor接口
-默认提供EncryptClassEncryptor,用户将需要加解密的POJO,实现EncryptClass,并在密文字段通过@EncryptField注解关联明文字段.
+默认提供EncryptClassEncryptor,用户将需要加解密的POJO,实现EncryptClass,并在密文字段通过@EncryptField注解关联明文字段.<br/>
 如
 ```java
 public class EncryptUser implements EncryptClass {
@@ -65,7 +67,7 @@ public class EncryptUser implements EncryptClass {
     private String encryptName;
 }
 ```
-用户可自定义实现Encryptor接口,对指定Class进行处理
+用户可自定义实现Encryptor接口,对指定Class进行处理<br/>
 如
 ```java
 @Component
@@ -108,7 +110,7 @@ public class UserAuthEncryptor implements Encryptor<UserAuth> {
 通过GuavaCache对单个数据的加解密进行缓存.可用过配置关闭.
 
 ## 单字段查询判断
-需要手动判断当前是要查明文字段还是查密文字段,比如只通过用户名查询,参数只是一个String
+需要手动判断当前是要查明文字段还是查密文字段,比如只通过用户名查询,参数只是一个String<br/>
 可以通过QueryCipherTextFieldSwitch.isQueryByCipherTextField()方法判断,true表示应该通过密文查询,false表示应该通过明文字段查询
 
 ## 配置说明
