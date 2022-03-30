@@ -95,6 +95,10 @@ public class UserAuthEncryptor implements Encryptor<UserAuth> {
 ## 缓存支持
 通过GuavaCache对单个数据的加解密进行缓存.可用过配置关闭.
 
+## 单字段查询判断
+需要手动判断当前是要查明文字段还是查密文字段,比如只通过用户名查询,参数只是一个String
+可以通过QueryCipherTextFieldSwitch.isQueryByCipherTextField()方法判断,true表示应该通过密文查询,false表示应该通过明文字段查询
+
 ## 配置说明
 ```json
 {
