@@ -21,7 +21,7 @@ mei:
 数据库存在明文历史数据,需要分两次上线.
 ### 判断通过明文或密文字段查询
 配置mei.query-source-field-switch=true时,不会对查询参数进行加密.
-配置mei.query-source-field-switch=true时,会删除明文字段.
+配置mei.query-source-field-switch=false时,会删除明文字段.
 所以我们可以将sql就行为空判断,决定通过那个字段查询.如
 ```java
     @Select({"<script>",
