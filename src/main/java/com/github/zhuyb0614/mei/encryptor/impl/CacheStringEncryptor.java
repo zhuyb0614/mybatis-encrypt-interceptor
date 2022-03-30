@@ -1,7 +1,7 @@
 package com.github.zhuyb0614.mei.encryptor.impl;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptor.IStringEncryptor;
+import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-public class CacheStringEncryptor implements IStringEncryptor {
+public class CacheStringEncryptor implements StringEncryptor {
     private Cache<String, String> ENCRYPT_CACHE;
     private Cache<String, String> DECRYPT_CACHE;
-    private IStringEncryptor stringEncryptor;
+    private StringEncryptor stringEncryptor;
 
-    public CacheStringEncryptor(MeiProperties meiProperties, IStringEncryptor stringEncryptor) {
+    public CacheStringEncryptor(MeiProperties meiProperties, StringEncryptor stringEncryptor) {
         this.stringEncryptor = stringEncryptor;
         ENCRYPT_CACHE = CacheBuilder.newBuilder()
                 .expireAfterWrite(meiProperties.getCacheExpireAfterWriteSeconds(), TimeUnit.SECONDS)

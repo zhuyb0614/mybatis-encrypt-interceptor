@@ -1,13 +1,13 @@
 package com.github.zhuyb0614.mei.encryptor.impl;
 
-import com.github.zhuyb0614.mei.encryptor.IStringEncryptor;
+import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public class ReverseStringEncryptor implements IStringEncryptor {
+public class ReverseStringEncryptor implements StringEncryptor {
 
 
     @Override

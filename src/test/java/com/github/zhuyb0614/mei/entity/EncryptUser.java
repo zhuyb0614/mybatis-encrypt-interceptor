@@ -10,7 +10,9 @@ import lombok.ToString;
  */
 @Data
 @ToString(callSuper = true)
-public class EncryptUser extends User implements EncryptClass {
+public class EncryptUser implements EncryptClass {
+    private Integer id;
+    private String name;
     @EncryptField(sourceFiledName = "name")
     private String encryptName;
 }

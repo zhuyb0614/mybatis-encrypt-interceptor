@@ -2,7 +2,7 @@ package com.github.zhuyb0614.mei;
 
 
 import com.github.zhuyb0614.mei.encryptor.Encryptor;
-import com.github.zhuyb0614.mei.encryptor.IStringEncryptor;
+import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
 import com.github.zhuyb0614.mei.encryptor.impl.CacheStringEncryptor;
 import com.github.zhuyb0614.mei.encryptor.impl.EncryptClassEncryptor;
 import com.github.zhuyb0614.mei.encryptor.impl.ReverseStringEncryptor;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -50,11 +49,11 @@ public class MybatisEiAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public IStringEncryptor stringEncryptor() {
+    public StringEncryptor stringEncryptor() {
         return new ReverseStringEncryptor();
     }
 
-    public IStringEncryptor cacheStringEncryptor(MeiProperties meiProperties, IStringEncryptor stringEncryptor) {
+    public StringEncryptor cacheStringEncryptor(MeiProperties meiProperties, StringEncryptor stringEncryptor) {
         if (meiProperties.getCacheSwitch()) {
             return new CacheStringEncryptor(meiProperties, stringEncryptor);
         } else {
@@ -64,7 +63,7 @@ public class MybatisEiAutoConfiguration {
 
     @Bean
     @SuppressWarnings("all")
-    public Encryptor<EncryptClass> encryptClassEncryptor(IStringEncryptor stringEncryptor, MeiProperties meiProperties) {
+    public Encryptor<EncryptClass> encryptClassEncryptor(StringEncryptor stringEncryptor, MeiProperties meiProperties) {
         return new EncryptClassEncryptor(meiProperties, cacheStringEncryptor(meiProperties, stringEncryptor));
     }
 

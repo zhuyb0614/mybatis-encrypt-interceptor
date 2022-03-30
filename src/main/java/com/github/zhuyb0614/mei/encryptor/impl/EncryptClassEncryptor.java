@@ -4,7 +4,7 @@ import com.github.zhuyb0614.mei.EncryptClass;
 import com.github.zhuyb0614.mei.MeiProperties;
 import com.github.zhuyb0614.mei.anno.EncryptField;
 import com.github.zhuyb0614.mei.encryptor.Encryptor;
-import com.github.zhuyb0614.mei.encryptor.IStringEncryptor;
+import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
 import com.github.zhuyb0614.mei.utils.LoopLimit;
 import com.google.common.base.CaseFormat;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +19,9 @@ import java.util.*;
 public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
 
     protected MeiProperties meiProperties;
-    private IStringEncryptor stringEncryptDecrypt;
+    private StringEncryptor stringEncryptDecrypt;
 
-    public EncryptClassEncryptor(MeiProperties meiProperties, IStringEncryptor stringEncryptDecrypt) {
+    public EncryptClassEncryptor(MeiProperties meiProperties, StringEncryptor stringEncryptDecrypt) {
         this.meiProperties = meiProperties;
         this.stringEncryptDecrypt = stringEncryptDecrypt;
     }

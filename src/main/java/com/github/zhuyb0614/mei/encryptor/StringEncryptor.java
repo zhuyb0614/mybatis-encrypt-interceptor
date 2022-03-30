@@ -8,7 +8,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2022/3/29 3:47 下午
  */
-public interface IStringEncryptor {
+public interface StringEncryptor {
 
     String encryptString(String str);
 
