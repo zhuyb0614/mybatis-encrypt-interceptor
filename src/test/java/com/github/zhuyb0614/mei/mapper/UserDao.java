@@ -20,9 +20,6 @@ public interface UserDao {
     @Select("select * from user where id= #{id}")
     EncryptUser findEncryptUserById(Integer id);
 
-    @Insert("INSERT INTO user (id, name, encrypt_name, age, email) VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{email})")
-    int insert(EncryptUser encryptUser);
-
 
 
 
@@ -33,5 +30,17 @@ public interface UserDao {
             "<if test='es.cipherText!=null'>encrypt_name = #{es.cipherText}</if>",
             "</script>"})
     EncryptUser findByName(@Param("es") EncryptString encryptString);
+
+
+
+
+
+
+
+
+
+    @Insert({"INSERT INTO user (id, name, encrypt_name, age, email) ",
+            "VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{email})"})
+    int insert(EncryptUser encryptUser);
 
 }

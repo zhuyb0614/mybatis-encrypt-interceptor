@@ -46,28 +46,28 @@ public class UserDaoTest {
 
 
     @Test
-    public void insert() {
-        EncryptUser encryptUser = new EncryptUser();
-        int id = 2;
-        encryptUser.setId(id);
-        encryptUser.setName("zhangsan");
-        encryptUser.setAge(66);
-        encryptUser.setEmail("zhangsan@xxx.com");
-        userDao.insert(encryptUser);
-        EncryptUser persistUser = userDao.findEncryptUserById(id);
-        log.info("encrypt user 3 {}", persistUser);
-        User user = userDao.findById(id);
-        log.info("user 3 {}", user);
-        Assert.assertTrue("zhangsan".equals(persistUser.getName()));
-    }
-
-
-
-    @Test
     public void findByName() {
         log.info("mei properties {}", meiProperties);
         EncryptUser encryptUser = userDao.findByName(new EncryptString("yunbo"));
         log.info("encrypt user  {}", encryptUser);
         Assert.assertTrue(encryptUser != null && "yunbo".equals(encryptUser.getName()));
     }
+
+
+
+
+
+    @Test
+    public void insert() {
+        log.info("mei properties {}", meiProperties);
+        EncryptUser encryptUser = new EncryptUser();
+        int id = 2;
+        encryptUser.setId(id);
+        encryptUser.setName("zhangsan");
+        encryptUser.setAge(66);
+        encryptUser.setEmail("zhangsan@xxx.com");
+        int changeRows = userDao.insert(encryptUser);
+        Assert.assertTrue(changeRows == 1);
+    }
+
 }
