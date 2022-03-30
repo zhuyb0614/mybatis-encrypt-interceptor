@@ -9,8 +9,8 @@
 通过EncryptParameterInterceptor对用户参数进行拦截,对明文字段加密.<br/>
 通过EncryptResultInterceptor对查询结果进行拦截,将密文字段解密.<br/>
 单元测试演示<br/>
-![](./images/query-process.png)
-![](./images/write-process.png)
+![](./image/query-process.png)
+![](./image/write-process.png)
 
 ## 新上线业务
 不需要清洗历史数据,可直接读写使用密文字段.
