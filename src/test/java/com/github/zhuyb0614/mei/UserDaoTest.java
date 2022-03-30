@@ -1,6 +1,5 @@
 package com.github.zhuyb0614.mei;
 
-import com.github.zhuyb0614.mei.MybatisEncryptInterceptorApplication;
 import com.github.zhuyb0614.mei.entity.EncryptUser;
 import com.github.zhuyb0614.mei.entity.User;
 import com.github.zhuyb0614.mei.mapper.UserDao;

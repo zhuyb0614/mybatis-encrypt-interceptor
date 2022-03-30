@@ -2,7 +2,6 @@ package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
 import com.github.zhuyb0614.mei.encryptor.Encryptor;
-import com.google.common.cache.Cache;
 import org.apache.ibatis.plugin.Interceptor;
 
 import java.util.HashMap;
