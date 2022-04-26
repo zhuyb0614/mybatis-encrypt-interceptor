@@ -7,6 +7,7 @@ import com.github.zhuyb0614.mei.encryptor.Encryptor;
 import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
 import com.github.zhuyb0614.mei.utils.LoopLimit;
 import com.google.common.base.CaseFormat;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -58,8 +59,11 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
             return;
         }
         List<String> sourceTxtList = getSourceTxtList(parameterObject);
-        LoopLimit.loop(meiProperties.getBatchSize(), sourceTxtList, strings -> setEncryptTxt(parameterObject, stringEncryptDecrypt.encryptStrings(strings), isRemoveSource));
-    }
+        Map<String, String> sourceTxtEncryptTxtMap = Maps.newHashMapWithExpectedSize(sourceTxtList.size());
+        LoopLimit.loop(meiProperties.getBatchSize(), sourceTxtList, (strings -> {
+            sourceTxtEncryptTxtMap.putAll(stringEncryptDecrypt.encryptStrings(strings));
+        }));
+        setEncryptTxt(parameterObject, sourceTxtEncryptTxtMap, isRemoveSource);    }
 
 
     @Override
@@ -91,8 +95,11 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
             return;
         }
         List<String> encryptTxtList = getEncryptTxtList(resultObject);
-        LoopLimit.loop(meiProperties.getBatchSize(), encryptTxtList, strings -> setSourceTxt(resultObject, stringEncryptDecrypt.decryptStrings(strings)));
-    }
+        Map<String, String> encryptTxtSourceTxtMap = Maps.newHashMapWithExpectedSize(encryptTxtList.size());
+        LoopLimit.loop(meiProperties.getBatchSize(), encryptTxtList, (strings -> {
+            encryptTxtSourceTxtMap.putAll(stringEncryptDecrypt.decryptStrings(strings));
+        }));
+        setSourceTxt(resultObject, encryptTxtSourceTxtMap);    }
 
     @Override
     public Class<EncryptClass> support() {
