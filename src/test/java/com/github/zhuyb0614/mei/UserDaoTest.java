@@ -41,7 +41,7 @@ public class UserDaoTest {
         log.info("encrypt user 1 {}", encryptUser);
         User user = userDao.findById(id);
         log.info("user 1 {}", user);
-        Assert.assertTrue("yunbo".equals(encryptUser.getName()));
+        Assert.assertTrue("yunbo".equals(encryptUser.getName()) && "yb".equals(user.getName()));
     }
 
 

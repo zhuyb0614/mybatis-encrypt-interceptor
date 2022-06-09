@@ -12,7 +12,7 @@ public class EncryptUser implements EncryptClass {
     private Integer id;
     private String name;
     private Integer age;
-    @EncryptField(sourceFiledName = "age")
+    @EncryptField(sourceFiledName = "age", sourceFiledType = Integer.class)
     private String encryptAge;
     private String email;
     @EncryptField(sourceFiledName = "name")
