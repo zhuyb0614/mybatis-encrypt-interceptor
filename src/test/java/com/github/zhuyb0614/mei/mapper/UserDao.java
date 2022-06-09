@@ -21,9 +21,6 @@ public interface UserDao {
     EncryptUser findEncryptUserById(Integer id);
 
 
-
-
-
     @Select({"<script>",
             "select * from user where         ",
             "<if test='es.plainText!=null'>name = #{es.plainText}</if>",
@@ -32,15 +29,8 @@ public interface UserDao {
     EncryptUser findByName(@Param("es") EncryptString encryptString);
 
 
-
-
-
-
-
-
-
-    @Insert({"INSERT INTO user (id, name, encrypt_name, age, email) ",
-            "VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{email})"})
+    @Insert({"INSERT INTO user (id, name, encrypt_name, age,encrypt_age,email) ",
+            "VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{encryptAge},#{email})"})
     int insert(EncryptUser encryptUser);
 
 }

@@ -1,7 +1,7 @@
 package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptor.Encryptor;
+import com.github.zhuyb0614.mei.encryptors.Encryptors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.plugin.Intercepts;
@@ -22,7 +22,7 @@ import java.util.*;
 @Slf4j
 public class EncryptResultInterceptor extends BaseInterceptor {
 
-    public EncryptResultInterceptor(MeiProperties meiProperties, List<Encryptor> encryptors) {
+    public EncryptResultInterceptor(MeiProperties meiProperties, List<Encryptors> encryptors) {
         super(meiProperties, encryptors);
     }
 
@@ -36,7 +36,7 @@ public class EncryptResultInterceptor extends BaseInterceptor {
         if (result instanceof ArrayList) {
             ArrayList resultList = (ArrayList) result;
             if (!CollectionUtils.isEmpty(resultList)) {
-                Optional<Encryptor> encryptorOptional = chooseEncryptor(resultList.get(0).getClass());
+                Optional<Encryptors> encryptorOptional = chooseEncryptors(resultList.get(0).getClass());
                 if (encryptorOptional.isPresent()) {
                     log.debug("result decrypt before {}", result);
                     encryptorOptional.get().decryptBatch(resultList);
@@ -44,7 +44,7 @@ public class EncryptResultInterceptor extends BaseInterceptor {
                 }
             }
         } else {
-            Optional<Encryptor> encryptorOptional = chooseEncryptor(result.getClass());
+            Optional<Encryptors> encryptorOptional = chooseEncryptors(result.getClass());
             if (encryptorOptional.isPresent()) {
                 log.debug("result decrypt before {}", result);
                 encryptorOptional.get().decrypt(result);

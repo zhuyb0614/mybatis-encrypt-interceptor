@@ -1,6 +1,7 @@
-package com.github.zhuyb0614.mei.encryptor;
+package com.github.zhuyb0614.mei.encryptors;
 
 import com.github.zhuyb0614.mei.entity.UserAuth;
+import com.github.zhuyb0614.mei.pojo.SourceBeanFieldValue;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 
@@ -12,10 +13,10 @@ import java.util.List;
  * @date 2022/3/30 10:07 上午
  */
 @Component
-public class UserAuthEncryptor implements Encryptor<UserAuth> {
+public class UserAuthEncryptors implements Encryptors<UserAuth> {
 
     @Override
-    public void encrypt(UserAuth parameterObject, boolean isRemoveSource) {
+    public void encrypt(UserAuth parameterObject, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         parameterObject.setEncryptIdentityNo(Base64Utils.encodeToString(parameterObject.getIdentityNo().getBytes()));
         if (isRemoveSource) {
             parameterObject.setIdentityNo(null);
@@ -23,9 +24,9 @@ public class UserAuthEncryptor implements Encryptor<UserAuth> {
     }
 
     @Override
-    public void encryptBatch(List<UserAuth> parameterObject, boolean isRemoveSource) {
+    public void encryptBatch(List<UserAuth> parameterObject, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         for (UserAuth userAuth : parameterObject) {
-            encrypt(userAuth, isRemoveSource);
+            encrypt(userAuth, isRemoveSource, sourceBeanFieldValues);
         }
     }
 

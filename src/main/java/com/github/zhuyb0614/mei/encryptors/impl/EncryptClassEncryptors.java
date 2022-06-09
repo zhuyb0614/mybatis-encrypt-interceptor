@@ -1,10 +1,11 @@
-package com.github.zhuyb0614.mei.encryptor.impl;
+package com.github.zhuyb0614.mei.encryptors.impl;
 
 import com.github.zhuyb0614.mei.EncryptClass;
 import com.github.zhuyb0614.mei.MeiProperties;
 import com.github.zhuyb0614.mei.anno.EncryptField;
-import com.github.zhuyb0614.mei.encryptor.Encryptor;
-import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
+import com.github.zhuyb0614.mei.encryptors.Encryptors;
+import com.github.zhuyb0614.mei.encryptors.StringEncryptors;
+import com.github.zhuyb0614.mei.pojo.SourceBeanFieldValue;
 import com.github.zhuyb0614.mei.utils.LoopLimit;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Maps;
@@ -17,53 +18,72 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @Slf4j
-public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
+public class EncryptClassEncryptors implements Encryptors<EncryptClass> {
 
     protected MeiProperties meiProperties;
-    private StringEncryptor stringEncryptDecrypt;
+    private StringEncryptors stringEncryptDecrypt;
 
-    public EncryptClassEncryptor(MeiProperties meiProperties, StringEncryptor stringEncryptDecrypt) {
+    public EncryptClassEncryptors(MeiProperties meiProperties, StringEncryptors stringEncryptDecrypt) {
         this.meiProperties = meiProperties;
         this.stringEncryptDecrypt = stringEncryptDecrypt;
     }
 
     @Override
-    public void encrypt(EncryptClass parameterObject, boolean isRemoveSource) {
+    public void encrypt(EncryptClass parameterObject, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         Class<?> aClass = parameterObject.getClass();
         Field[] declaredFields = aClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
             try {
                 EncryptField annotation = declaredField.getAnnotation(EncryptField.class);
                 if (annotation != null) {
-                    Field encryptFiled = declaredField;
-                    Object sourceTxt = getSourceTxt(parameterObject, annotation);
+                    Field encryptField = declaredField;
+                    Field sourceFiled = aClass.getDeclaredField(annotation.sourceFiledName());
+                    sourceFiled.setAccessible(true);
+                    Object sourceTxt = sourceFiled.get(parameterObject);
                     if (sourceTxt != null && sourceTxt.toString().length() > 0) {
-                        encryptFiled.setAccessible(true);
-                        encryptFiled.set(parameterObject, stringEncryptDecrypt.encryptString(sourceTxt.toString()));
+                        encryptField.setAccessible(true);
+                        encryptField.set(parameterObject, stringEncryptDecrypt.encryptString(sourceTxt));
                         if (isRemoveSource) {
-                            setSourceTxt(parameterObject, annotation, null);
+                            setFieldNull(parameterObject, sourceFiled);
+                            sourceBeanFieldValues.add(new SourceBeanFieldValue(parameterObject, sourceFiled, sourceTxt));
                         }
                     }
                 }
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | NoSuchFieldException e) {
                 log.error("encrypt {} error", parameterObject, e);
             }
         }
     }
 
+    /**
+     * 调用set方法将字段赋值null
+     * 方法查找规则为set+小驼峰转大驼峰,请注意set方法格式
+     * 如 字段phone,将反射调用obj.setPhone(null);
+     *
+     * @param parameterObject
+     * @param field
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    private void setFieldNull(EncryptClass parameterObject, Field field) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Method setSourceFieldMethod = parameterObject.getClass().getMethod("set" + CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL).convert(field.getName()), field.getType());
+        setSourceFieldMethod.invoke(parameterObject, (Object) null);
+    }
 
     @Override
-    public void encryptBatch(List<EncryptClass> parameterObject, boolean isRemoveSource) {
+    public void encryptBatch(List<EncryptClass> parameterObject, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         if (parameterObject.size() == 1) {
-            encrypt(parameterObject.get(0), isRemoveSource);
+            encrypt(parameterObject.get(0), isRemoveSource, sourceBeanFieldValues);
             return;
         }
-        List<String> sourceTxtList = getSourceTxtList(parameterObject);
-        Map<String, String> sourceTxtEncryptTxtMap = Maps.newHashMapWithExpectedSize(sourceTxtList.size());
+        List<Object> sourceTxtList = getSourceTxtList(parameterObject);
+        Map<Object, String> sourceTxtEncryptTxtMap = Maps.newHashMapWithExpectedSize(sourceTxtList.size());
         LoopLimit.loop(meiProperties.getBatchSize(), sourceTxtList, (strings -> {
             sourceTxtEncryptTxtMap.putAll(stringEncryptDecrypt.encryptStrings(strings));
         }));
-        setEncryptTxt(parameterObject, sourceTxtEncryptTxtMap, isRemoveSource);    }
+        setEncryptTxt(parameterObject, sourceTxtEncryptTxtMap, isRemoveSource, sourceBeanFieldValues);
+    }
 
 
     @Override
@@ -77,8 +97,8 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
                     declaredField.setAccessible(true);
                     Object encryptTxt = declaredField.get(resultObject);
                     if (encryptTxt != null && encryptTxt.toString().length() > 0) {
-                        String decryptString = stringEncryptDecrypt.decryptString(encryptTxt.toString());
-                        setSourceTxt(resultObject, annotation, decryptString);
+                        Object sourceObject = stringEncryptDecrypt.decryptString(encryptTxt.toString());
+                        setSource(resultObject, annotation, sourceObject);
                     }
                 }
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -95,11 +115,12 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
             return;
         }
         List<String> encryptTxtList = getEncryptTxtList(resultObject);
-        Map<String, String> encryptTxtSourceTxtMap = Maps.newHashMapWithExpectedSize(encryptTxtList.size());
+        Map<String, Object> encryptTxtSourceTxtMap = Maps.newHashMapWithExpectedSize(encryptTxtList.size());
         LoopLimit.loop(meiProperties.getBatchSize(), encryptTxtList, (strings -> {
             encryptTxtSourceTxtMap.putAll(stringEncryptDecrypt.decryptStrings(strings));
         }));
-        setSourceTxt(resultObject, encryptTxtSourceTxtMap);    }
+        setSourceTxt(resultObject, encryptTxtSourceTxtMap);
+    }
 
     @Override
     public Class<EncryptClass> support() {
@@ -107,7 +128,7 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
     }
 
 
-    private void setEncryptTxt(List<EncryptClass> parameterObject, Map<String, String> sourceTxtEncryptTxtMap, boolean isRemoveSource) {
+    private void setEncryptTxt(List<EncryptClass> parameterObject, Map<Object, String> sourceTxtEncryptTxtMap, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         for (EncryptClass obj : parameterObject) {
             Class<?> aClass = obj.getClass();
             Field[] declaredFields = aClass.getDeclaredFields();
@@ -123,7 +144,8 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
                             encryptField.setAccessible(true);
                             encryptField.set(obj, sourceTxtEncryptTxtMap.get(sourceTxt));
                             if (isRemoveSource) {
-                                setSourceTxt(obj, annotation, null);
+                                setFieldNull(obj, sourceFiled);
+                                sourceBeanFieldValues.add(new SourceBeanFieldValue(obj, sourceFiled, sourceTxt));
                             }
                         }
                     }
@@ -134,7 +156,7 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
         }
     }
 
-    private void setSourceTxt(List<EncryptClass> parameterObject, Map<String, String> encryptTxtSourceTxtMap) {
+    private void setSourceTxt(List<EncryptClass> parameterObject, Map<String, Object> encryptTxtSourceTxtMap) {
         for (EncryptClass obj : parameterObject) {
             Class<?> aClass = obj.getClass();
             Field[] declaredFields = aClass.getDeclaredFields();
@@ -146,7 +168,7 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
                         encryptField.setAccessible(true);
                         Object encryptTxt = encryptField.get(obj);
                         if (encryptTxt != null && encryptTxt.toString().length() > 0) {
-                            setSourceTxt(obj, annotation, encryptTxtSourceTxtMap.get(encryptTxt));
+                            setSource(obj, annotation, encryptTxtSourceTxtMap.get(encryptTxt));
                         }
                     }
                 } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -157,8 +179,8 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
         }
     }
 
-    private List<String> getSourceTxtList(List<EncryptClass> parameterObject) {
-        Set<String> sourceTxtList = new HashSet<>();
+    private List<Object> getSourceTxtList(List<EncryptClass> parameterObject) {
+        Set<Object> sourceTxtList = new HashSet<>();
         for (EncryptClass obj : parameterObject) {
             Class<?> aClass = obj.getClass();
             Field[] declaredFields = aClass.getDeclaredFields();
@@ -168,7 +190,7 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
                     if (annotation != null) {
                         Object sourceTxt = getSourceTxt(obj, annotation);
                         if (sourceTxt != null && sourceTxt.toString().length() > 0) {
-                            sourceTxtList.add(sourceTxt.toString());
+                            sourceTxtList.add(sourceTxt);
                         }
                     }
                 } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -204,13 +226,13 @@ public class EncryptClassEncryptor implements Encryptor<EncryptClass> {
         return new ArrayList<>(encryptTxtList);
     }
 
-    private void setSourceTxt(EncryptClass resultObject, EncryptField annotation, String decryptString) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private void setSource(EncryptClass resultObject, EncryptField annotation, Object sourceObject) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String sourceFiledSetMethod = annotation.sourceFiledSetMethod();
         if (StringUtils.isEmpty(sourceFiledSetMethod)) {
             sourceFiledSetMethod = String.format("set%s", CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL).convert(annotation.sourceFiledName()));
         }
         Method setMethod = resultObject.getClass().getMethod(sourceFiledSetMethod, annotation.sourceFiledType());
-        setMethod.invoke(resultObject, decryptString);
+        setMethod.invoke(resultObject, sourceObject);
     }
 
     private Object getSourceTxt(EncryptClass obj, EncryptField annotation) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {

@@ -1,7 +1,8 @@
 package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptor.Encryptor;
+import com.github.zhuyb0614.mei.encryptors.Encryptors;
+import com.github.zhuyb0614.mei.pojo.SourceBeanFieldValue;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
@@ -32,7 +33,7 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
 
     public static final String QUERY = "query";
 
-    public EncryptParameterInterceptor(MeiProperties meiProperties, List<Encryptor> encryptors) {
+    public EncryptParameterInterceptor(MeiProperties meiProperties, List<Encryptors> encryptors) {
         super(meiProperties, encryptors);
     }
 
@@ -48,20 +49,29 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
             return invocation.proceed();
         }
         boolean isRemoveSource = isRemoveSource(isQuery);
+        List<SourceBeanFieldValue> sourceBeanFieldValues = doEncrypt(parameter, isRemoveSource);
+        Object result = invocation.proceed();
+        if (isRemoveSource && !sourceBeanFieldValues.isEmpty()) {
+            sourceBeanFieldValues.forEach(SourceBeanFieldValue::resetValue);
+        }
+        return result;
+    }
 
+    private List<SourceBeanFieldValue> doEncrypt(Object parameter, boolean isRemoveSource) {
+        List<SourceBeanFieldValue> sourceBeanFieldValues = new ArrayList<>();
         //多个参数mybatis参数将是hashmap key=参数名 value=参数对象
         if (parameter instanceof HashMap) {
             Set<Object> encryptedObjSet = Sets.newHashSetWithExpectedSize(((HashMap) parameter).size());
             for (Object value : (((HashMap) parameter).values())) {
                 if (!encryptedObjSet.contains(value)) {
-                    encryptSingleOrCollection(value, isRemoveSource);
+                    encryptSingleOrCollection(value, isRemoveSource, sourceBeanFieldValues);
                     encryptedObjSet.add(value);
                 }
             }
         } else {
-            encryptSingleOrCollection(parameter, isRemoveSource);
+            encryptSingleOrCollection(parameter, isRemoveSource, sourceBeanFieldValues);
         }
-        return invocation.proceed();
+        return sourceBeanFieldValues;
     }
 
     /**
@@ -71,35 +81,29 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
      * @return
      */
     private boolean isRemoveSource(boolean isQuery) {
-        boolean isRemoveSource = false;
         //是查询SQL,未开启明文字段查询.将明文字段加密赋值给密文字段,并清空源明文字段
-        if (isQuery && !meiProperties.getQuerySourceFieldSwitch()) {
-            isRemoveSource = true;
-            //不是查询SQL,并关闭了明文字段写入,将明文字段加密赋值给密文字段,并清空源明文字段
-        } else if (!isQuery && !meiProperties.getWriteSourceFieldSwitch()) {
-            isRemoveSource = true;
-        }
-        return isRemoveSource;
+        //不是查询SQL,并关闭了明文字段写入,将明文字段加密赋值给密文字段,并清空源明文字段
+        return isQuery ? !meiProperties.getQuerySourceFieldSwitch() : !meiProperties.getWriteSourceFieldSwitch();
     }
 
 
-    private void encryptSingleOrCollection(Object parameter, boolean isRemoveSource) {
+    private void encryptSingleOrCollection(Object parameter, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
         if (parameter instanceof Collection) {
             Collection collection = (Collection) parameter;
             Map<Class, List<Object>> classListMap = (Map<Class, List<Object>>) collection.stream().collect(Collectors.groupingBy(Object::getClass));
             for (Map.Entry<Class, List<Object>> classListEntry : classListMap.entrySet()) {
-                Optional<Encryptor> encryptorOptional = chooseEncryptor(classListEntry.getKey());
-                if (encryptorOptional.isPresent()) {
+                Optional<Encryptors> encryptorsOptional = chooseEncryptors(classListEntry.getKey());
+                if (encryptorsOptional.isPresent()) {
                     log.debug("param encrypt before {}", classListEntry.getValue());
-                    encryptorOptional.get().encryptBatch(classListEntry.getValue(), isRemoveSource);
+                    encryptorsOptional.get().encryptBatch(classListEntry.getValue(), isRemoveSource, sourceBeanFieldValues);
                     log.debug("param encrypt after {}", classListEntry.getValue());
                 }
             }
         } else {
-            Optional<Encryptor> encryptorOptional = chooseEncryptor(parameter.getClass());
-            if (encryptorOptional.isPresent()) {
+            Optional<Encryptors> encryptorsOptional = chooseEncryptors(parameter.getClass());
+            if (encryptorsOptional.isPresent()) {
                 log.debug("param encrypt before {}", parameter);
-                encryptorOptional.get().encrypt(parameter, isRemoveSource);
+                encryptorsOptional.get().encrypt(parameter, isRemoveSource, sourceBeanFieldValues);
                 log.debug("param encrypt after {}", parameter);
             }
         }

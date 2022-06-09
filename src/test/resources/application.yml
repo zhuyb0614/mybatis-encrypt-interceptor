@@ -16,7 +16,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 mei:
-  write-source-field-switch: true
+  write-source-field-switch: false
   query-source-field-switch: false
 logging:
   level:

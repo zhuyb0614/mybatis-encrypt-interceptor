@@ -54,9 +54,6 @@ public class UserDaoTest {
     }
 
 
-
-
-
     @Test
     public void insert() {
         log.info("mei properties {}", meiProperties);
@@ -64,10 +61,11 @@ public class UserDaoTest {
         int id = 2;
         encryptUser.setId(id);
         encryptUser.setName("zhangsan");
-        encryptUser.setAge(66);
+        encryptUser.setAge(61);
         encryptUser.setEmail("zhangsan@xxx.com");
         int changeRows = userDao.insert(encryptUser);
-        Assert.assertTrue(changeRows == 1);
+        log.info("persistent user {}", encryptUser);
+        Assert.assertTrue(changeRows == 1 && "zhangsan".equals(encryptUser.getName()) && "\"nasgnahz\"".equals(encryptUser.getEncryptName()));
     }
 
 }

@@ -1,7 +1,7 @@
 package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptor.Encryptor;
+import com.github.zhuyb0614.mei.encryptors.Encryptors;
 import org.apache.ibatis.plugin.Interceptor;
 
 import java.util.HashMap;
@@ -14,25 +14,25 @@ import java.util.Optional;
  */
 public abstract class BaseInterceptor implements Interceptor {
     protected MeiProperties meiProperties;
-    protected List<Encryptor> encryptors;
-    private Map<Class, Optional<Encryptor>> encryptorMap;
+    protected List<Encryptors> encryptors;
+    private Map<Class, Optional<Encryptors>> encryptorMap;
 
-    public BaseInterceptor(MeiProperties meiProperties, List<Encryptor> encryptors) {
+    public BaseInterceptor(MeiProperties meiProperties, List<Encryptors> encryptors) {
         this.meiProperties = meiProperties;
         this.encryptors = encryptors;
         this.encryptorMap = new HashMap<>();
     }
 
-    protected Optional<Encryptor> chooseEncryptor(Class parameterClass) {
-        Optional<Encryptor> encryptorOptional = encryptorMap.get(parameterClass);
-        if (encryptorOptional != null) {
-            return encryptorOptional;
+    protected Optional<Encryptors> chooseEncryptors(Class parameterClass) {
+        Optional<Encryptors> encryptorsOptional = encryptorMap.get(parameterClass);
+        if (encryptorsOptional != null) {
+            return encryptorsOptional;
         }
-        for (Encryptor encryptor : encryptors) {
-            if (encryptor.support().isAssignableFrom(parameterClass)) {
-                encryptorOptional = Optional.of(encryptor);
-                encryptorMap.put(parameterClass, encryptorOptional);
-                return encryptorOptional;
+        for (Encryptors encryptors : this.encryptors) {
+            if (encryptors.support().isAssignableFrom(parameterClass)) {
+                encryptorsOptional = Optional.of(encryptors);
+                encryptorMap.put(parameterClass, encryptorsOptional);
+                return encryptorsOptional;
             }
         }
         return Optional.empty();

@@ -1,11 +1,11 @@
 package com.github.zhuyb0614.mei;
 
 
-import com.github.zhuyb0614.mei.encryptor.Encryptor;
-import com.github.zhuyb0614.mei.encryptor.StringEncryptor;
-import com.github.zhuyb0614.mei.encryptor.impl.CacheStringEncryptor;
-import com.github.zhuyb0614.mei.encryptor.impl.EncryptClassEncryptor;
-import com.github.zhuyb0614.mei.encryptor.impl.ReverseStringEncryptor;
+import com.github.zhuyb0614.mei.encryptors.Encryptors;
+import com.github.zhuyb0614.mei.encryptors.StringEncryptors;
+import com.github.zhuyb0614.mei.encryptors.impl.CacheStringEncryptors;
+import com.github.zhuyb0614.mei.encryptors.impl.EncryptClassEncryptors;
+import com.github.zhuyb0614.mei.encryptors.impl.ReverseStringEncryptors;
 import com.github.zhuyb0614.mei.interceptor.EncryptParameterInterceptor;
 import com.github.zhuyb0614.mei.interceptor.EncryptResultInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +35,9 @@ public class MybatisEiAutoConfiguration {
     @Resource
     private List<SqlSessionFactory> sqlSessionFactoryList;
     @Autowired
-    private List<Encryptor> encryptors;
+    private List<Encryptors> encryptors;
     @Autowired
-    private Encryptor<EncryptClass> encryptClassEncryptor;
+    private Encryptors<EncryptClass> encryptClassEncryptors;
     @Autowired
     private MeiProperties meiProperties;
 
@@ -49,22 +49,22 @@ public class MybatisEiAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public StringEncryptor stringEncryptor() {
-        return new ReverseStringEncryptor();
+    public StringEncryptors stringEncryptor() {
+        return new ReverseStringEncryptors();
     }
 
-    public StringEncryptor cacheStringEncryptor(MeiProperties meiProperties, StringEncryptor stringEncryptor) {
+    public StringEncryptors cacheStringEncryptor(MeiProperties meiProperties, StringEncryptors stringEncryptors) {
         if (meiProperties.getCacheSwitch()) {
-            return new CacheStringEncryptor(meiProperties, stringEncryptor);
+            return new CacheStringEncryptors(meiProperties, stringEncryptors);
         } else {
-            return stringEncryptor;
+            return stringEncryptors;
         }
     }
 
     @Bean
     @SuppressWarnings("all")
-    public Encryptor<EncryptClass> encryptClassEncryptor(StringEncryptor stringEncryptor, MeiProperties meiProperties) {
-        return new EncryptClassEncryptor(meiProperties, cacheStringEncryptor(meiProperties, stringEncryptor));
+    public Encryptors<EncryptClass> encryptClassEncryptor(StringEncryptors stringEncryptors, MeiProperties meiProperties) {
+        return new EncryptClassEncryptors(meiProperties, cacheStringEncryptor(meiProperties, stringEncryptors));
     }
 
     @PostConstruct
@@ -73,8 +73,8 @@ public class MybatisEiAutoConfiguration {
         if (encryptors == null) {
             encryptors = new ArrayList<>();
         }
-        if (!encryptors.contains(encryptClassEncryptor)) {
-            encryptors.add(encryptClassEncryptor);
+        if (!encryptors.contains(encryptClassEncryptors)) {
+            encryptors.add(encryptClassEncryptors);
         }
         Interceptor encryptResultInterceptor = new EncryptResultInterceptor(meiProperties, encryptors);
         Interceptor encryptParameterInterceptor = new EncryptParameterInterceptor(meiProperties, encryptors);
