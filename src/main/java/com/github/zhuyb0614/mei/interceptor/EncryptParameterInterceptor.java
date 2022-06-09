@@ -15,6 +15,7 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,14 +52,17 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
         boolean isRemoveSource = isRemoveSource(isQuery);
         List<SourceBeanFieldValue> sourceBeanFieldValues = doEncrypt(parameter, isRemoveSource);
         Object result = invocation.proceed();
-        if (isRemoveSource && !sourceBeanFieldValues.isEmpty()) {
+        if (isRemoveSource && !CollectionUtils.isEmpty(sourceBeanFieldValues)) {
             sourceBeanFieldValues.forEach(SourceBeanFieldValue::resetValue);
         }
         return result;
     }
 
     private List<SourceBeanFieldValue> doEncrypt(Object parameter, boolean isRemoveSource) {
-        List<SourceBeanFieldValue> sourceBeanFieldValues = new ArrayList<>();
+        List<SourceBeanFieldValue> sourceBeanFieldValues = null;
+        if (isRemoveSource) {
+            sourceBeanFieldValues = new ArrayList<>();
+        }
         //多个参数mybatis参数将是hashmap key=参数名 value=参数对象
         if (parameter instanceof HashMap) {
             Set<Object> encryptedObjSet = Sets.newHashSetWithExpectedSize(((HashMap) parameter).size());
