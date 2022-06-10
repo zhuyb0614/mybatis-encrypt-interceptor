@@ -53,7 +53,9 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
         List<SourceBeanFieldValue> sourceBeanFieldValues = doEncrypt(parameter, isRemoveSource);
         Object result = invocation.proceed();
         if (isRemoveSource && !CollectionUtils.isEmpty(sourceBeanFieldValues)) {
-            sourceBeanFieldValues.forEach(SourceBeanFieldValue::resetValue);
+            for (SourceBeanFieldValue sourceBeanFieldValue : sourceBeanFieldValues) {
+                sourceBeanFieldValue.resetValue();
+            }
         }
         return result;
     }

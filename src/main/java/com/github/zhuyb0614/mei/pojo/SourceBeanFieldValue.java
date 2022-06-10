@@ -21,11 +21,12 @@ public class SourceBeanFieldValue {
     private Field field;
     private Object value;
 
-    public void resetValue() {
+    public void resetValue() throws IllegalAccessException {
         try {
             field.set(sourceBean, value);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("wrong data {}", this, e);
+            throw e;
         }
     }
 }

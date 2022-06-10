@@ -29,8 +29,8 @@ public interface UserDao {
     EncryptUser findByName(@Param("es") EncryptString encryptString);
 
 
-    @Insert({"INSERT INTO user (id, name, encrypt_name, age,encrypt_age,email) ",
-            "VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{encryptAge},#{email})"})
+    @Insert({"INSERT INTO user (id, name, encrypt_name, age,encrypt_age,long_t,encrypt_long_t,email) ",
+            "VALUES (#{id}, #{name}, #{encryptName}, #{age}, #{encryptAge},#{longT},#{encryptLongT},#{email})"})
     int insert(EncryptUser encryptUser);
 
 }

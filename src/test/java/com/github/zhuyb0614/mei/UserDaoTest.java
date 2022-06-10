@@ -62,6 +62,7 @@ public class UserDaoTest {
         encryptUser.setId(id);
         encryptUser.setName("zhangsan");
         encryptUser.setAge(61);
+        encryptUser.setLongT(10010L);
         encryptUser.setEmail("zhangsan@xxx.com");
         int changeRows = userDao.insert(encryptUser);
         log.info("persistent user {}", encryptUser);

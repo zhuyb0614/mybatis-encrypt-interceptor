@@ -28,7 +28,8 @@ public class ReverseStringEncryptors implements StringEncryptors {
 
     @Override
     public Object decryptString(String str) {
-        return JSON.parseObject(reverseString(str), Object.class, defaultRedisConfig);
+        Object o = JSON.parseObject(reverseString(str), Object.class, defaultRedisConfig);
+        return o;
     }
 
     @Override
