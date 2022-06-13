@@ -6,7 +6,11 @@
 ### 密文字段
 数据库中经过加密存储的字段.
 ## 处理流程详解
+### 参数加密
 通过EncryptParameterInterceptor对用户参数进行拦截,对明文字段加密.<br/>
+如果配置不通过明文字段查询,会在查询前将明文字段置为null,查询后恢复.
+如果配置了不再写入明文字段,会在执行写入前将明文字段置为null,写入后恢复.
+### 响应结构解密
 通过EncryptResultInterceptor对查询结果进行拦截,将密文字段解密.<br/>
 单元测试演示<br/>
 ![](./image/query-process.png)
@@ -57,11 +61,11 @@ mei:
 
 ## 自定义扩展
 
-### StringEncryptor接口
-纯粹的字符串加解密提供接口,默认使用ReverseStringEncryptor将字符串翻转.<br/>
-用户自定义实现StringEncryptor接口并注册Bean到spring容器后.将自动使用用户自定义加解密规则.<br/>
-### Encryptor接口
-默认提供EncryptClassEncryptor,用户将需要加解密的POJO,实现EncryptClass,并在密文字段通过@EncryptField注解关联明文字段.<br/>
+### PrimitiveEncryptors接口
+纯粹的基本类型(String,Long,Integer...)加解密提供接口,默认使用ReversePrimitiveEncryptors将字符串翻转.<br/>
+用户可自定义实现PrimitiveEncryptors接口并注册Bean到spring容器后.将自动使用用户自定义加解密规则.<br/>
+### TypeSupportEncryptors接口
+默认提供EncryptClassEncryptors,用户将需要加解密的POJO,实现EncryptClass,并在密文字段通过@EncryptField注解关联明文字段.<br/>
 如
 ```java
 @Data
@@ -74,11 +78,11 @@ public class EncryptUser implements EncryptClass {
     private String encryptName;
 }
 ```
-用户可自定义实现Encryptor接口,对指定Class进行处理<br/>
+用户可自定义实现TypeSupportEncryptors接口,对指定Class进行处理<br/>
 如
 ```java
 @Component
-public class UserAuthEncryptor implements Encryptor<UserAuth> {
+public class UserAuthEncryptors implements TypeSupportEncryptors<UserAuth> {
 
     @Override
     public void encrypt(UserAuth parameterObject, boolean isRemoveSource) {

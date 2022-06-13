@@ -22,12 +22,12 @@ import java.util.*;
  * @author zhuyunbo
  */
 @Slf4j
-public class EncryptClassTypeSupportEncryptors implements TypeSupportEncryptors<EncryptClass> {
+public class EncryptClassEncryptors implements TypeSupportEncryptors<EncryptClass> {
 
     protected MeiProperties meiProperties;
     private PrimitiveEncryptors stringEncryptDecrypt;
 
-    public EncryptClassTypeSupportEncryptors(MeiProperties meiProperties, PrimitiveEncryptors stringEncryptDecrypt) {
+    public EncryptClassEncryptors(MeiProperties meiProperties, PrimitiveEncryptors stringEncryptDecrypt) {
         this.meiProperties = meiProperties;
         this.stringEncryptDecrypt = stringEncryptDecrypt;
     }

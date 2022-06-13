@@ -13,7 +13,7 @@ import java.util.List;
  * @date 2022/3/30 10:07 上午
  */
 @Component
-public class UserAuthTypeSupportEncryptors implements TypeSupportEncryptors<UserAuth> {
+public class UserAuthEncryptors implements TypeSupportEncryptors<UserAuth> {
 
     @Override
     public void encrypt(UserAuth parameterObject, boolean isRemoveSource, List<SourceBeanFieldValue> sourceBeanFieldValues) {
