@@ -4,7 +4,7 @@ package com.github.zhuyb0614.mei;
 import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
 import com.github.zhuyb0614.mei.encryptors.PrimitiveEncryptors;
 import com.github.zhuyb0614.mei.encryptors.impl.CachePrimitiveEncryptors;
-import com.github.zhuyb0614.mei.encryptors.impl.EncryptClassTypeSupportEncryptors;
+import com.github.zhuyb0614.mei.encryptors.impl.EncryptClassEncryptors;
 import com.github.zhuyb0614.mei.encryptors.impl.ReversePrimitiveEncryptors;
 import com.github.zhuyb0614.mei.interceptor.EncryptParameterInterceptor;
 import com.github.zhuyb0614.mei.interceptor.EncryptResultInterceptor;
@@ -64,7 +64,7 @@ public class MybatisEiAutoConfiguration {
     @Bean
     @SuppressWarnings("all")
     public TypeSupportEncryptors<EncryptClass> encryptClassEncryptor(PrimitiveEncryptors primitiveEncryptors, MeiProperties meiProperties) {
-        return new EncryptClassTypeSupportEncryptors(meiProperties, cacheStringEncryptor(meiProperties, primitiveEncryptors));
+        return new EncryptClassEncryptors(meiProperties, cacheStringEncryptor(meiProperties, primitiveEncryptors));
     }
 
     @PostConstruct
