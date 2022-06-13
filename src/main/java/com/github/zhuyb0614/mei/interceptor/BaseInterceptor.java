@@ -1,7 +1,7 @@
 package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptors.Encryptors;
+import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
 import org.apache.ibatis.plugin.Interceptor;
 
 import java.util.HashMap;
@@ -14,25 +14,24 @@ import java.util.Optional;
  */
 public abstract class BaseInterceptor implements Interceptor {
     protected MeiProperties meiProperties;
-    protected List<Encryptors> encryptors;
-    private Map<Class, Optional<Encryptors>> encryptorMap;
+    protected List<TypeSupportEncryptors> encryptors;
+    private Map<Class, TypeSupportEncryptors> encryptorsMap;
 
-    public BaseInterceptor(MeiProperties meiProperties, List<Encryptors> encryptors) {
+    public BaseInterceptor(MeiProperties meiProperties, List<TypeSupportEncryptors> encryptors) {
         this.meiProperties = meiProperties;
         this.encryptors = encryptors;
-        this.encryptorMap = new HashMap<>();
+        this.encryptorsMap = new HashMap<>();
     }
 
-    protected Optional<Encryptors> chooseEncryptors(Class parameterClass) {
-        Optional<Encryptors> encryptorsOptional = encryptorMap.get(parameterClass);
-        if (encryptorsOptional != null) {
-            return encryptorsOptional;
+    protected Optional<TypeSupportEncryptors> chooseEncryptors(Class parameterClass) {
+        TypeSupportEncryptors encryptors = encryptorsMap.get(parameterClass);
+        if (encryptors != null) {
+            return Optional.of(encryptors);
         }
-        for (Encryptors encryptors : this.encryptors) {
-            if (encryptors.support().isAssignableFrom(parameterClass)) {
-                encryptorsOptional = Optional.of(encryptors);
-                encryptorMap.put(parameterClass, encryptorsOptional);
-                return encryptorsOptional;
+        for (TypeSupportEncryptors typeSupportEncryptors : this.encryptors) {
+            if (typeSupportEncryptors.support().isAssignableFrom(parameterClass)) {
+                encryptorsMap.put(parameterClass, typeSupportEncryptors);
+                return Optional.of(typeSupportEncryptors);
             }
         }
         return Optional.empty();

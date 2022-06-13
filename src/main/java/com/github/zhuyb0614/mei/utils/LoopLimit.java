@@ -5,6 +5,11 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * 大数据分片处理工具类
+ *
+ * @author zhuyunbo
+ */
 @UtilityClass
 public class LoopLimit {
 

@@ -3,6 +3,11 @@ package com.github.zhuyb0614.mei;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * 配置信息
+ *
+ * @author zhuyunbo
+ */
 @ConfigurationProperties(prefix = "mei")
 @Data
 public class MeiProperties {

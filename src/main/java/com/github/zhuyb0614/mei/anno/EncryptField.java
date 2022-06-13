@@ -4,6 +4,8 @@ import java.lang.annotation.*;
 
 /**
  * 加密字段注解
+ *
+ * @author zhuyunbo
  */
 @Documented
 @Inherited

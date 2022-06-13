@@ -3,8 +3,8 @@ package com.github.zhuyb0614.mei.encryptors.impl;
 import com.github.zhuyb0614.mei.EncryptClass;
 import com.github.zhuyb0614.mei.MeiProperties;
 import com.github.zhuyb0614.mei.anno.EncryptField;
-import com.github.zhuyb0614.mei.encryptors.Encryptors;
-import com.github.zhuyb0614.mei.encryptors.StringEncryptors;
+import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
+import com.github.zhuyb0614.mei.encryptors.PrimitiveEncryptors;
 import com.github.zhuyb0614.mei.pojo.SourceBeanFieldValue;
 import com.github.zhuyb0614.mei.utils.LoopLimit;
 import com.google.common.base.CaseFormat;
@@ -17,13 +17,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * 被EncryptClass标识的实现类加密器
+ * @author zhuyunbo
+ */
 @Slf4j
-public class EncryptClassEncryptors implements Encryptors<EncryptClass> {
+public class EncryptClassTypeSupportEncryptors implements TypeSupportEncryptors<EncryptClass> {
 
     protected MeiProperties meiProperties;
-    private StringEncryptors stringEncryptDecrypt;
+    private PrimitiveEncryptors stringEncryptDecrypt;
 
-    public EncryptClassEncryptors(MeiProperties meiProperties, StringEncryptors stringEncryptDecrypt) {
+    public EncryptClassTypeSupportEncryptors(MeiProperties meiProperties, PrimitiveEncryptors stringEncryptDecrypt) {
         this.meiProperties = meiProperties;
         this.stringEncryptDecrypt = stringEncryptDecrypt;
     }

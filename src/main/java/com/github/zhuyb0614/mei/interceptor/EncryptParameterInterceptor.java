@@ -1,7 +1,7 @@
 package com.github.zhuyb0614.mei.interceptor;
 
 import com.github.zhuyb0614.mei.MeiProperties;
-import com.github.zhuyb0614.mei.encryptors.Encryptors;
+import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
 import com.github.zhuyb0614.mei.pojo.SourceBeanFieldValue;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
 
     public static final String QUERY = "query";
 
-    public EncryptParameterInterceptor(MeiProperties meiProperties, List<Encryptors> encryptors) {
+    public EncryptParameterInterceptor(MeiProperties meiProperties, List<TypeSupportEncryptors> encryptors) {
         super(meiProperties, encryptors);
     }
 
@@ -98,7 +98,7 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
             Collection collection = (Collection) parameter;
             Map<Class, List<Object>> classListMap = (Map<Class, List<Object>>) collection.stream().collect(Collectors.groupingBy(Object::getClass));
             for (Map.Entry<Class, List<Object>> classListEntry : classListMap.entrySet()) {
-                Optional<Encryptors> encryptorsOptional = chooseEncryptors(classListEntry.getKey());
+                Optional<TypeSupportEncryptors> encryptorsOptional = chooseEncryptors(classListEntry.getKey());
                 if (encryptorsOptional.isPresent()) {
                     log.debug("param encrypt before {}", classListEntry.getValue());
                     encryptorsOptional.get().encryptBatch(classListEntry.getValue(), isRemoveSource, sourceBeanFieldValues);
@@ -106,7 +106,7 @@ public class EncryptParameterInterceptor extends BaseInterceptor {
                 }
             }
         } else {
-            Optional<Encryptors> encryptorsOptional = chooseEncryptors(parameter.getClass());
+            Optional<TypeSupportEncryptors> encryptorsOptional = chooseEncryptors(parameter.getClass());
             if (encryptorsOptional.isPresent()) {
                 log.debug("param encrypt before {}", parameter);
                 encryptorsOptional.get().encrypt(parameter, isRemoveSource, sourceBeanFieldValues);

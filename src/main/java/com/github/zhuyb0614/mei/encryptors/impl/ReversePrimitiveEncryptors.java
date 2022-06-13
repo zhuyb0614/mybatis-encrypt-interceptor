@@ -3,7 +3,7 @@ package com.github.zhuyb0614.mei.encryptors.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.github.zhuyb0614.mei.encryptors.StringEncryptors;
+import com.github.zhuyb0614.mei.encryptors.PrimitiveEncryptors;
 import com.google.common.collect.Maps;
 import org.springframework.util.CollectionUtils;
 
@@ -12,12 +12,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-public class ReverseStringEncryptors implements StringEncryptors {
-    private final static ParserConfig defaultRedisConfig = new ParserConfig();
+/**
+ * 将字符串翻转的基本类型加密器
+ *
+ * @author zhuyunbo
+ */
+public class ReversePrimitiveEncryptors implements PrimitiveEncryptors {
+    private final static ParserConfig DEFAULT_PARSER_CONFIG = new ParserConfig();
 
     static {
-        defaultRedisConfig.setAutoTypeSupport(true);
+        DEFAULT_PARSER_CONFIG.setAutoTypeSupport(true);
     }
 
     @Override
@@ -28,7 +32,7 @@ public class ReverseStringEncryptors implements StringEncryptors {
 
     @Override
     public Object decryptString(String str) {
-        Object o = JSON.parseObject(reverseString(str), Object.class, defaultRedisConfig);
+        Object o = JSON.parseObject(reverseString(str), Object.class, DEFAULT_PARSER_CONFIG);
         return o;
     }
 
