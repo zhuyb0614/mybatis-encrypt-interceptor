@@ -1,8 +1,8 @@
 package com.github.zhuyb0614.mei;
 
 
-import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
 import com.github.zhuyb0614.mei.encryptors.PrimitiveEncryptors;
+import com.github.zhuyb0614.mei.encryptors.TypeSupportEncryptors;
 import com.github.zhuyb0614.mei.encryptors.impl.CachePrimitiveEncryptors;
 import com.github.zhuyb0614.mei.encryptors.impl.EncryptClassEncryptors;
 import com.github.zhuyb0614.mei.encryptors.impl.ReversePrimitiveEncryptors;
@@ -12,13 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
 @ConditionalOnProperty(value = "mei.open-switch", havingValue = "on", matchIfMissing = true)
 @Slf4j
 @EnableConfigurationProperties(MeiProperties.class)
-public class MybatisEiAutoConfiguration {
+public class MybatisEiAutoConfiguration implements ApplicationRunner {
 
     @Resource
     private List<SqlSessionFactory> sqlSessionFactoryList;
@@ -67,7 +68,6 @@ public class MybatisEiAutoConfiguration {
         return new EncryptClassEncryptors(meiProperties, cacheStringEncryptor(meiProperties, primitiveEncryptors));
     }
 
-    @PostConstruct
     public void addPageInterceptor() {
         QueryCipherTextFieldSwitch.setMeiProperties(meiProperties);
         if (encryptors == null) {
@@ -84,4 +84,8 @@ public class MybatisEiAutoConfiguration {
         }
     }
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        addPageInterceptor();
+    }
 }
