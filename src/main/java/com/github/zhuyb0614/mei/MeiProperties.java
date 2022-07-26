@@ -8,18 +8,23 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @author zhuyunbo
  */
-@ConfigurationProperties(prefix = "mei")
+@ConfigurationProperties(prefix = "yb.mei")
 @Data
 public class MeiProperties {
+
     public static final int MAX_BATCH_SIZE = 1000;
+    /**
+     * 是否开启
+     */
+    private boolean openSwitch = true;
     /**
      * 查询明文列开关
      */
-    private Boolean querySourceFieldSwitch = Boolean.TRUE;
+    private boolean querySourceFieldSwitch = true;
     /**
      * 是否写入明文字段开关
      */
-    private Boolean writeSourceFieldSwitch = Boolean.TRUE;
+    private boolean writeSourceFieldSwitch = true;
     /**
      * 批量加解密的单批数据量，最大为1000。超过1000将使用1000
      */
@@ -27,7 +32,7 @@ public class MeiProperties {
     /**
      * 是否开启缓存
      */
-    private Boolean cacheSwitch = Boolean.TRUE;
+    private boolean cacheSwitch = true;
     /**
      * 缓存最大数据量
      */

@@ -28,7 +28,7 @@ import java.util.List;
  * @author zhuyunbo
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(value = "mei.open-switch", havingValue = "on", matchIfMissing = true)
+@ConditionalOnProperty(value = "yb.mei.open-switch", havingValue = "true", matchIfMissing = true)
 @Slf4j
 @EnableConfigurationProperties(MeiProperties.class)
 public class MybatisEiAutoConfiguration implements ApplicationRunner {
@@ -55,7 +55,7 @@ public class MybatisEiAutoConfiguration implements ApplicationRunner {
     }
 
     public PrimitiveEncryptors cacheStringEncryptor(MeiProperties meiProperties, PrimitiveEncryptors primitiveEncryptors) {
-        if (meiProperties.getCacheSwitch()) {
+        if (meiProperties.isCacheSwitch()) {
             return new CachePrimitiveEncryptors(meiProperties, primitiveEncryptors);
         } else {
             return primitiveEncryptors;

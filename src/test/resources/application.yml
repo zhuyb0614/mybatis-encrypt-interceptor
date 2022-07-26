@@ -14,10 +14,10 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
-
-mei:
-  write-source-field-switch: false
-  query-source-field-switch: false
+yb:
+  mei:
+    write-source-field-switch: false
+    query-source-field-switch: false
 logging:
   level:
     com.github.zhuyb0614.mei: debug
